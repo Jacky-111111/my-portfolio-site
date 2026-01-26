@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - Jack Yu Devs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="projects-section">
+        <h1 class="section-title">Projects</h1>
+        <div class="projects-grid">
+            <!-- Project Card 1: CMU QPA Plus -->
+            <div class="project-card card-mint">
+                <div class="project-placeholder">
+                    <div class="color-squares vertical">
+                        <div class="square yellow"></div>
+                        <div class="square light-blue"></div>
+                        <div class="square green"></div>
+                        <div class="square pink"></div>
+                        <div class="square light-green"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">CMU QPA Plus</h3>
+                    <p class="project-tech">FastAPI, Python, JavaScript, HTML/CSS</p>
+                    <p class="project-description">Full-stack academic metrics system that formalizes CMU's official QPA/GPA policy into a deterministic computation engine. Features FastAPI backend with Pydantic validation and responsive JavaScript frontend with real-time updates.</p>
+                    <p class="project-date">Sept 2025 – Present</p>
+                </div>
+            </div>
+
+            <!-- Project Card 2: CarbonTrack Org -->
+            <div class="project-card card-peach">
+                <div class="project-placeholder">
+                    <div class="color-squares horizontal">
+                        <div class="square red"></div>
+                        <div class="square cyan"></div>
+                        <div class="square black"></div>
+                        <div class="square dark-blue"></div>
+                        <div class="square light-orange"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">CarbonTrack Org</h3>
+                    <p class="project-tech">Co-Founder & CEO</p>
+                    <p class="project-description">Led end-to-end product and technical development of CarbonTrackApp, a research-backed system converting eco-friendly actions into gamified carbon credits. Built and managed a team of 21 students, scaling to 145 active users across 12+ partner schools globally.</p>
+                    <p class="project-date">Nov 2023 – Present</p>
+                </div>
+            </div>
+
+            <!-- Project Card 3: Occupancy Detection -->
+            <div class="project-card card-blue">
+                <div class="project-placeholder">
+                    <div class="color-squares vertical">
+                        <div class="square green"></div>
+                        <div class="square white"></div>
+                        <div class="square dark-green"></div>
+                        <div class="square black"></div>
+                        <div class="square light-orange"></div>
+                        <div class="square dark-orange"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">Occupancy Detection via Statistical Classification</h3>
+                    <p class="project-tech">R, Statistical Learning, Binary Classification, Decision Trees</p>
+                    <p class="project-description">Framed room occupancy prediction as a binary classification problem using environmental sensor data. Implemented and compared LDA, QDA, logistic regression, and classification trees, achieving 98% accuracy with CO₂ as the most informative feature.</p>
+                    <p class="project-date">Nov 2025</p>
+                </div>
+            </div>
+
+            <!-- Project Card 4: Statistical Modeling of Article Virality -->
+            <div class="project-card card-green">
+                <div class="project-placeholder">
+                    <div class="color-squares vertical">
+                        <div class="square red"></div>
+                        <div class="square white"></div>
+                        <div class="square light-blue"></div>
+                        <div class="square dark-blue"></div>
+                        <div class="square dark-green"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">Statistical Modeling of Article Virality</h3>
+                    <p class="project-tech">R, Regression Modeling, Feature Analysis</p>
+                    <p class="project-description">Modeled social media article shares using Mashable data, framing content virality as a regression problem. Constructed and validated a multiple linear regression model with log-transformed response, uncovering statistically significant weekday effects.</p>
+                    <p class="project-date">Oct 2025</p>
+                </div>
+            </div>
+
+            <!-- Project Card 5: EchoMinder -->
+            <div class="project-card card-mint">
+                <div class="project-placeholder">
+                    <div class="color-squares horizontal">
+                        <div class="square yellow"></div>
+                        <div class="square light-blue"></div>
+                        <div class="square green"></div>
+                        <div class="square pink"></div>
+                        <div class="square light-green"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">EchoMinder</h3>
+                    <p class="project-tech">Python, LLM Agents, Memory Systems, Prompt Engineering</p>
+                    <p class="project-description">Hierarchical memory system for LLM agents spanning short-, mid-, and long-term layers to enable persistent cross-session contextual awareness. Engineered automated summarization and memory retrieval pipelines for context-aware prompt construction.</p>
+                    <p class="project-date">Oct 2025</p>
+                </div>
+            </div>
+
+            <!-- Project Card 6: Pillulu -->
+            <div class="project-card card-peach">
+                <div class="project-placeholder">
+                    <div class="color-squares vertical">
+                        <div class="square red"></div>
+                        <div class="square cyan"></div>
+                        <div class="square black"></div>
+                        <div class="square dark-blue"></div>
+                        <div class="square light-orange"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">Pillulu</h3>
+                    <p class="project-tech">Python, Flask, LLM APIs, AWS, Docker, REST APIs</p>
+                    <p class="project-description">AI-powered medication management system to assist users in identifying medications, understanding usage instructions, and managing daily intake. Architected scalable backend on AWS using Flask, Docker, Nginx, and Gunicorn with HTTPS-enabled service delivery.</p>
+                    <p class="project-date">June 2025 – Aug 2025</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
