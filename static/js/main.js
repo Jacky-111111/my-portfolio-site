@@ -101,12 +101,25 @@ function initProjectsGallery() {
     const cards = gallery.querySelectorAll('.project-card');
     const cardWidth = 320 + 24; // card width + gap
     let currentIndex = 0;
-    const cardsPerView = Math.floor(gallery.offsetWidth / cardWidth);
-    const totalPages = Math.ceil(cards.length / cardsPerView);
     const totalCards = cards.length;
+    let isScrolling = false; // 标记是否正在程序化滚动
+    
+    // 计算 padding offset（让卡片在边缘露出一半）
+    const getPaddingOffset = () => Math.max(0, (window.innerWidth / 2) - 160);
+    
+    // 计算可见卡片数量（考虑 padding）
+    const getCardsPerView = () => {
+        const paddingOffset = getPaddingOffset();
+        const visibleWidth = gallery.offsetWidth - (paddingOffset * 2);
+        return Math.max(1, Math.floor(visibleWidth / cardWidth));
+    };
+    
+    let cardsPerView = getCardsPerView();
+    let totalPages = Math.ceil(totalCards / cardsPerView);
     
     // Create indicators - 为每个项目创建一个指示器
     if (indicators) {
+        indicators.innerHTML = ''; // 清空现有指示器
         for (let i = 0; i < totalCards; i++) {
             const indicator = document.createElement('div');
             indicator.className = 'gallery-indicator';
@@ -126,8 +139,8 @@ function initProjectsGallery() {
             const indicatorElements = indicators.querySelectorAll('.gallery-indicator');
             // 计算当前视图中最居中的卡片索引
             const scrollPosition = gallery.scrollLeft;
-            const paddingOffset = (window.innerWidth / 2) - 160;
-            const adjustedScroll = scrollPosition - paddingOffset;
+            const currentPaddingOffset = getPaddingOffset();
+            const adjustedScroll = Math.max(0, scrollPosition - currentPaddingOffset);
             const centerCardIndex = Math.round(adjustedScroll / cardWidth);
             const activeCardIndex = Math.max(0, Math.min(centerCardIndex, totalCards - 1));
             
@@ -138,14 +151,26 @@ function initProjectsGallery() {
     }
     
     function scrollToPage(page) {
-        currentIndex = Math.max(0, Math.min(page, totalPages - 1));
-        const scrollPosition = currentIndex * cardsPerView * cardWidth;
+        const targetIndex = Math.max(0, Math.min(page, totalPages - 1));
+        if (targetIndex === currentIndex) return; // 如果已经在目标页面，不执行
+        
+        currentIndex = targetIndex;
+        const currentPaddingOffset = getPaddingOffset();
+        // 计算滚动位置：初始 padding + 页面偏移
+        const scrollPosition = currentPaddingOffset + (currentIndex * cardsPerView * cardWidth);
+        
+        isScrolling = true;
         gallery.scrollTo({
             left: scrollPosition,
             behavior: 'smooth'
         });
         updateButtons();
-        updateIndicators();
+        
+        // 延迟更新指示器，等待滚动完成
+        setTimeout(() => {
+            isScrolling = false;
+            updateIndicators();
+        }, 600);
     }
     
     function scrollToCard(cardIndex) {
@@ -153,14 +178,19 @@ function initProjectsGallery() {
         scrollToPage(targetPage);
     }
     
-    prevBtn.addEventListener('click', () => {
-        if (currentIndex > 0) {
+    // 按钮事件监听
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (currentIndex > 0 && !isScrolling) {
             scrollToPage(currentIndex - 1);
         }
     });
     
-    nextBtn.addEventListener('click', () => {
-        if (currentIndex < totalPages - 1) {
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (currentIndex < totalPages - 1 && !isScrolling) {
             scrollToPage(currentIndex + 1);
         }
     });
@@ -168,22 +198,22 @@ function initProjectsGallery() {
     // Update on scroll
     let scrollTimeout;
     gallery.addEventListener('scroll', () => {
+        if (isScrolling) return; // 如果正在程序化滚动，不更新页面索引
+        
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
             const scrollPosition = gallery.scrollLeft;
-            const paddingOffset = (window.innerWidth / 2) - 160;
-            const adjustedScroll = scrollPosition - paddingOffset;
-            const newIndex = Math.round(adjustedScroll / cardWidth);
-            const newPageIndex = Math.floor(newIndex / cardsPerView);
+            const currentPaddingOffset = getPaddingOffset();
+            const adjustedScroll = Math.max(0, scrollPosition - currentPaddingOffset);
+            const centerCardIndex = Math.round(adjustedScroll / cardWidth);
+            const newPageIndex = Math.floor(centerCardIndex / cardsPerView);
             
-            if (newPageIndex !== currentIndex) {
+            if (newPageIndex !== currentIndex && newPageIndex >= 0 && newPageIndex < totalPages) {
                 currentIndex = newPageIndex;
                 updateButtons();
-                updateIndicators();
-            } else {
-                // 即使在同一页，也要更新指示器以反映当前可见的卡片
-                updateIndicators();
             }
+            // 总是更新指示器以反映当前可见的卡片
+            updateIndicators();
         }, 100);
     });
     
@@ -202,13 +232,12 @@ function initProjectsGallery() {
     });
     
     // Initialize - scroll to show first card half outside
-    // Calculate padding offset (50vw - 160px)
-    const paddingOffset = (window.innerWidth / 2) - 160;
-    const initialScroll = paddingOffset > 0 ? paddingOffset : 0;
-    
     // Wait for layout to be ready
     setTimeout(() => {
+        const initialPaddingOffset = getPaddingOffset();
+        const initialScroll = initialPaddingOffset > 0 ? initialPaddingOffset : 0;
         gallery.scrollLeft = initialScroll;
+        updateIndicators();
     }, 100);
     
     updateButtons();
