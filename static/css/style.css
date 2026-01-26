@@ -135,14 +135,13 @@ body {
 /* Main Content */
 .main-content {
     flex: 1;
-    padding: 0;
+    padding: 0 0 calc(var(--footer-height) + 20px) 0;
     background-color: #f5f7fa;
     color: #1a1f3a;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     margin-top: var(--header-height);
-    margin-bottom: var(--footer-height);
     height: calc(100vh - var(--header-height) - var(--footer-height));
 }
 
@@ -436,7 +435,7 @@ body {
 
 /* About Section */
 .about-section {
-    padding: 20px 0;
+    padding: 20px 0 40px 0;
 }
 
 .about-content {
@@ -563,7 +562,7 @@ body {
 
 /* Contact Section */
 .contact-section {
-    padding: 20px 0;
+    padding: 20px 0 40px 0;
 }
 
 .contact-content {
