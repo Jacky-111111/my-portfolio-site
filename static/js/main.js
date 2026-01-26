@@ -103,14 +103,15 @@ function initProjectsGallery() {
     let currentIndex = 0;
     const cardsPerView = Math.floor(gallery.offsetWidth / cardWidth);
     const totalPages = Math.ceil(cards.length / cardsPerView);
+    const totalCards = cards.length;
     
-    // Create indicators
+    // Create indicators - 为每个项目创建一个指示器
     if (indicators) {
-        for (let i = 0; i < totalPages; i++) {
+        for (let i = 0; i < totalCards; i++) {
             const indicator = document.createElement('div');
             indicator.className = 'gallery-indicator';
             if (i === 0) indicator.classList.add('active');
-            indicator.addEventListener('click', () => scrollToPage(i));
+            indicator.addEventListener('click', () => scrollToCard(i));
             indicators.appendChild(indicator);
         }
     }
@@ -123,8 +124,15 @@ function initProjectsGallery() {
     function updateIndicators() {
         if (indicators) {
             const indicatorElements = indicators.querySelectorAll('.gallery-indicator');
+            // 计算当前视图中最居中的卡片索引
+            const scrollPosition = gallery.scrollLeft;
+            const paddingOffset = (window.innerWidth / 2) - 160;
+            const adjustedScroll = scrollPosition - paddingOffset;
+            const centerCardIndex = Math.round(adjustedScroll / cardWidth);
+            const activeCardIndex = Math.max(0, Math.min(centerCardIndex, totalCards - 1));
+            
             indicatorElements.forEach((ind, i) => {
-                ind.classList.toggle('active', i === currentIndex);
+                ind.classList.toggle('active', i === activeCardIndex);
             });
         }
     }
@@ -138,6 +146,11 @@ function initProjectsGallery() {
         });
         updateButtons();
         updateIndicators();
+    }
+    
+    function scrollToCard(cardIndex) {
+        const targetPage = Math.floor(cardIndex / cardsPerView);
+        scrollToPage(targetPage);
     }
     
     prevBtn.addEventListener('click', () => {
@@ -158,10 +171,17 @@ function initProjectsGallery() {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
             const scrollPosition = gallery.scrollLeft;
-            const newIndex = Math.round(scrollPosition / (cardsPerView * cardWidth));
-            if (newIndex !== currentIndex) {
-                currentIndex = newIndex;
+            const paddingOffset = (window.innerWidth / 2) - 160;
+            const adjustedScroll = scrollPosition - paddingOffset;
+            const newIndex = Math.round(adjustedScroll / cardWidth);
+            const newPageIndex = Math.floor(newIndex / cardsPerView);
+            
+            if (newPageIndex !== currentIndex) {
+                currentIndex = newPageIndex;
                 updateButtons();
+                updateIndicators();
+            } else {
+                // 即使在同一页，也要更新指示器以反映当前可见的卡片
                 updateIndicators();
             }
         }, 100);
