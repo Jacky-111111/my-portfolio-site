@@ -3,10 +3,14 @@
 {% block title %}Projects - Jack Yu Dev{% endblock %}
 
 {% block content %}
-<div class="container">
-    <section class="projects-section">
-        <h1 class="section-title">Projects</h1>
-        <div class="projects-grid">
+<section class="projects-gallery-section">
+    <div class="projects-gallery-wrapper">
+            <button class="gallery-nav prev" aria-label="Previous projects">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="projects-gallery" id="projectsGallery">
             <!-- Project Card 1: CMU QPA Plus -->
             <div class="project-card card-mint">
                 <div class="project-placeholder">
@@ -121,7 +125,12 @@
                     <p class="project-date">June 2025 – Aug 2025</p>
                 </div>
             </div>
+            <button class="gallery-nav next" aria-label="Next projects">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+            <div class="gallery-indicators" id="galleryIndicators"></div>
         </div>
     </section>
-</div>
 {% endblock %}

@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add project card interactions
     initProjectCards();
+    
+    // Initialize gallery
+    initProjectsGallery();
 });
 
 function highlightActiveNav() {
@@ -84,4 +87,142 @@ function initScrollAnimations() {
 // Initialize scroll animations if supported
 if ('IntersectionObserver' in window) {
     document.addEventListener('DOMContentLoaded', initScrollAnimations);
+}
+
+// Projects Gallery Functions
+function initProjectsGallery() {
+    const gallery = document.getElementById('projectsGallery');
+    const prevBtn = document.querySelector('.gallery-nav.prev');
+    const nextBtn = document.querySelector('.gallery-nav.next');
+    const indicators = document.getElementById('galleryIndicators');
+    
+    if (!gallery || !prevBtn || !nextBtn) return;
+    
+    const cards = gallery.querySelectorAll('.project-card');
+    const cardWidth = 320 + 24; // card width + gap
+    let currentIndex = 0;
+    const cardsPerView = Math.floor(gallery.offsetWidth / cardWidth);
+    const totalPages = Math.ceil(cards.length / cardsPerView);
+    
+    // Create indicators
+    if (indicators) {
+        for (let i = 0; i < totalPages; i++) {
+            const indicator = document.createElement('div');
+            indicator.className = 'gallery-indicator';
+            if (i === 0) indicator.classList.add('active');
+            indicator.addEventListener('click', () => scrollToPage(i));
+            indicators.appendChild(indicator);
+        }
+    }
+    
+    function updateButtons() {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= totalPages - 1;
+    }
+    
+    function updateIndicators() {
+        if (indicators) {
+            const indicatorElements = indicators.querySelectorAll('.gallery-indicator');
+            indicatorElements.forEach((ind, i) => {
+                ind.classList.toggle('active', i === currentIndex);
+            });
+        }
+    }
+    
+    function scrollToPage(page) {
+        currentIndex = Math.max(0, Math.min(page, totalPages - 1));
+        const scrollPosition = currentIndex * cardsPerView * cardWidth;
+        gallery.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+        updateButtons();
+        updateIndicators();
+    }
+    
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            scrollToPage(currentIndex - 1);
+        }
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < totalPages - 1) {
+            scrollToPage(currentIndex + 1);
+        }
+    });
+    
+    // Update on scroll
+    let scrollTimeout;
+    gallery.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            const scrollPosition = gallery.scrollLeft;
+            const newIndex = Math.round(scrollPosition / (cardsPerView * cardWidth));
+            if (newIndex !== currentIndex) {
+                currentIndex = newIndex;
+                updateButtons();
+                updateIndicators();
+            }
+        }, 100);
+    });
+    
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const newCardsPerView = Math.floor(gallery.offsetWidth / cardWidth);
+            const newTotalPages = Math.ceil(cards.length / newCardsPerView);
+            if (newTotalPages !== totalPages) {
+                // Reinitialize if needed
+                location.reload();
+            }
+        }, 250);
+    });
+    
+    // Initialize - scroll to show first card half outside
+    // Calculate padding offset (50vw - 160px)
+    const paddingOffset = (window.innerWidth / 2) - 160;
+    const initialScroll = paddingOffset > 0 ? paddingOffset : 0;
+    
+    // Wait for layout to be ready
+    setTimeout(() => {
+        gallery.scrollLeft = initialScroll;
+    }, 100);
+    
+    updateButtons();
+    updateIndicators();
+    
+    // Enable mouse drag scrolling
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    
+    gallery.addEventListener('mousedown', (e) => {
+        isDown = true;
+        gallery.style.cursor = 'grabbing';
+        startX = e.pageX - gallery.offsetLeft;
+        scrollLeft = gallery.scrollLeft;
+    });
+    
+    gallery.addEventListener('mouseleave', () => {
+        isDown = false;
+        gallery.style.cursor = 'grab';
+    });
+    
+    gallery.addEventListener('mouseup', () => {
+        isDown = false;
+        gallery.style.cursor = 'grab';
+    });
+    
+    gallery.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - gallery.offsetLeft;
+        const walk = (x - startX) * 2;
+        gallery.scrollLeft = scrollLeft - walk;
+    });
+    
+    gallery.style.cursor = 'grab';
 }
