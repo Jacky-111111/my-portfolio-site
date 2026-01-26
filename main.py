@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from jinja2 import Environment, FileSystemLoader
 import os
 
-app = FastAPI(title="Jack Yu Devs Portfolio", description="Personal portfolio website")
+app = FastAPI(title="Jack Yu Dev Portfolio", description="Personal portfolio website")
 
 # Mount static files (CSS, JS, images)
 app.mount("/static", StaticFiles(directory="static"), name="static")

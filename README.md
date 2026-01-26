@@ -1,4 +1,4 @@
-# Jack Yu Devs - Personal Portfolio Website
+# Jack Yu Dev - Personal Portfolio Website
 
 A professional portfolio website built with FastAPI to showcase projects, skills, and contact information.
 

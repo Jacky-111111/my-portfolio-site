@@ -338,6 +338,15 @@ body {
     font-size: 1.1rem;
 }
 
+.about-photo-img {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* Contact Section */
 .contact-section {
     padding: 20px 0;
