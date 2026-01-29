@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize gallery
     initProjectsGallery();
+    
+    // Contact page: copy email and toast
+    initContactPage();
 });
 
 function highlightActiveNav() {
@@ -274,4 +277,55 @@ function initProjectsGallery() {
     });
     
     gallery.style.cursor = 'grab';
+}
+
+// Contact page: copy-to-clipboard and toast
+function initContactPage() {
+    const copyBtn = document.querySelector('.contact-copy-btn');
+    const toast = document.getElementById('contactToast');
+    const emailCard = document.querySelector('.contact-card-email .contact-value');
+    if (!copyBtn || !toast) return;
+
+    copyBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const email = emailCard ? emailCard.getAttribute('data-email') || emailCard.textContent.trim() : '';
+        if (!email) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(email).then(function() {
+                showContactToast(copyBtn, toast);
+            }).catch(function() {
+                fallbackCopy(email, copyBtn, toast);
+            });
+        } else {
+            fallbackCopy(email, copyBtn, toast);
+        }
+    });
+}
+
+function fallbackCopy(text, copyBtn, toast) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+        showContactToast(copyBtn, toast);
+    } catch (err) { /* ignore */ }
+    document.body.removeChild(ta);
+}
+
+function showContactToast(copyBtn, toast) {
+    copyBtn.classList.add('copied');
+    toast.classList.add('visible');
+    setTimeout(function() {
+        toast.classList.remove('visible');
+    }, 2000);
+    setTimeout(function() {
+        copyBtn.classList.remove('copied');
+    }, 2500);
 }
