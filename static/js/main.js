@@ -1,8 +1,14 @@
 // Main JavaScript for portfolio site
 
+const ROUTE_ORDER = { '/': 0, '/about': 1, '/contact': 2 };
+const ROUTE_PATHS = ['/', '/about', '/contact'];
+
 document.addEventListener('DOMContentLoaded', function() {
     // Highlight active navigation link
     highlightActiveNav();
+    
+    // Page transition: intercept nav, slide left/right
+    initPageTransitions();
     
     // Add smooth scrolling
     addSmoothScrolling();
@@ -17,11 +23,134 @@ document.addEventListener('DOMContentLoaded', function() {
     initContactPage();
 });
 
+function initPageTransitions() {
+    const internalLinks = document.querySelectorAll('.header a[href^="/"]');
+    internalLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (!href || href.indexOf('#') === 0) return;
+            const targetPath = new URL(href, window.location.origin).pathname;
+            if (ROUTE_ORDER[targetPath] === undefined) return;
+            const currentPath = window.location.pathname;
+            if (targetPath === currentPath) return;
+
+            e.preventDefault();
+            navigateWithTransition(href, targetPath);
+        });
+    });
+
+    window.addEventListener('popstate', function() {
+        loadPageContent(window.location.pathname, false);
+    });
+}
+
+function navigateWithTransition(href, targetPath) {
+    const currentPath = window.location.pathname;
+    const currentIndex = ROUTE_ORDER[currentPath] ?? 0;
+    const targetIndex = ROUTE_ORDER[targetPath] ?? 0;
+    const goForward = targetIndex > currentIndex;
+
+    fetch(href, { headers: { Accept: 'text/html' } })
+        .then(r => r.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newMain = doc.querySelector('main.main-content .main-content-inner');
+            const newContentHTML = newMain ? newMain.innerHTML : (doc.querySelector('main.main-content')?.innerHTML || '');
+            if (!newContentHTML) {
+                window.location.href = href;
+                return;
+            }
+            runSlideTransition(targetPath, newContentHTML, goForward, href);
+        })
+        .catch(() => { window.location.href = href; });
+}
+
+function runSlideTransition(targetPath, newContentHTML, goForward, fullHref) {
+    const main = document.querySelector('main.main-content');
+    const inner = document.getElementById('mainContentInner');
+    if (!main || !inner) return;
+
+    const currentHTML = inner.innerHTML;
+    const viewport = document.createElement('div');
+    viewport.className = 'main-transition-viewport';
+    viewport.dataset.direction = goForward ? 'forward' : 'back';
+
+    const panelCurrent = document.createElement('div');
+    panelCurrent.className = 'slide-panel current';
+    panelCurrent.innerHTML = currentHTML;
+
+    const panelNext = document.createElement('div');
+    panelNext.className = 'slide-panel next slide-initial';
+    panelNext.innerHTML = newContentHTML;
+
+    viewport.appendChild(panelCurrent);
+    viewport.appendChild(panelNext);
+
+    main.classList.add('is-transitioning');
+    main.innerHTML = '';
+    main.appendChild(viewport);
+
+    let finished = false;
+    function finish() {
+        if (finished) return;
+        finished = true;
+        main.classList.remove('is-transitioning');
+        main.innerHTML = '<div class="main-content-inner" id="mainContentInner">' + newContentHTML + '</div>';
+        history.pushState({ path: targetPath }, '', fullHref);
+        highlightActiveNav();
+        reinitPageModules();
+    }
+
+    panelNext.addEventListener('transitionend', function onEnd(e) {
+        if (e.target !== panelNext || e.propertyName !== 'transform') return;
+        finish();
+    }, { once: true });
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            panelNext.classList.remove('slide-initial');
+        });
+    });
+
+    setTimeout(finish, 450);
+}
+
+function loadPageContent(path, addHistory) {
+    const href = path === '/' ? '/' : path;
+    fetch(href, { headers: { Accept: 'text/html' } })
+        .then(r => r.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newMain = doc.querySelector('main.main-content .main-content-inner');
+            const newContentHTML = newMain ? newMain.innerHTML : (doc.querySelector('main.main-content')?.innerHTML || '');
+            if (!newContentHTML) return;
+            const main = document.querySelector('main.main-content');
+            const inner = document.getElementById('mainContentInner');
+            if (!main || !inner) return;
+            inner.innerHTML = newContentHTML;
+            if (addHistory) history.pushState({ path: path }, '', href);
+            highlightActiveNav();
+            reinitPageModules();
+        })
+        .catch(() => { window.location.href = href; });
+}
+
+function reinitPageModules() {
+    addSmoothScrolling();
+    initProjectCards();
+    initProjectsGallery();
+    initContactPage();
+    if ('IntersectionObserver' in window) initScrollAnimations();
+}
+
 function highlightActiveNav() {
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav-link');
     
     navLinks.forEach(link => {
+        link.classList.remove('active');
         const href = link.getAttribute('href');
         if (href === currentPath || (currentPath === '/' && href === '/')) {
             link.classList.add('active');
