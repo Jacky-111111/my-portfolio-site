@@ -189,7 +189,7 @@ function initProjectCards() {
                 screenshotEl.classList.remove('no-image');
             } else {
                 screenshotEl.classList.add('no-image');
-                screenshotEl.textContent = '暂无截图';
+                screenshotEl.textContent = 'No screenshot';
             }
         }
         if (demoBtn) {
@@ -198,14 +198,14 @@ function initProjectCards() {
                 demoBtn.classList.remove('no-url');
                 try {
                     const host = new URL(demoUrl).hostname.replace(/^www\./, '');
-                    demoBtn.textContent = '访问 ' + host;
+                    demoBtn.textContent = host;  // 只显示域名，不加「访问」
                 } catch (_) {
                     demoBtn.textContent = '查看展示';
                 }
             } else {
                 demoBtn.href = '#';
                 demoBtn.classList.add('no-url');
-                demoBtn.textContent = '暂无展示链接';
+                demoBtn.textContent = 'No demo link';
             }
             demoBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
