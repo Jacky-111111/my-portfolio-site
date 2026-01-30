@@ -231,23 +231,30 @@ function initProjectsGallery() {
     if (!gallery || !prevBtn || !nextBtn) return;
     
     const cards = gallery.querySelectorAll('.project-card');
-    const cardWidth = 320 + 24; // card width + gap
+    const gap = parseInt(getComputedStyle(gallery).gap, 10) || 24;
+    const getCardWidth = () => (cards[0] ? cards[0].offsetWidth + gap : 320 + gap);
+    let cardWidth = getCardWidth();
     let currentIndex = 0;
     const totalCards = cards.length;
-    let isScrolling = false; // 标记是否正在程序化滚动
-    
-    // 计算 padding offset（让卡片在边缘露出一半）
-    const getPaddingOffset = () => Math.max(0, (window.innerWidth / 2) - 160);
-    
-    // 计算可见卡片数量（考虑 padding）
+    let isScrolling = false;
+
+    const getPaddingOffset = () => parseFloat(getComputedStyle(gallery).paddingLeft) || 0;
+
     const getCardsPerView = () => {
         const paddingOffset = getPaddingOffset();
         const visibleWidth = gallery.offsetWidth - (paddingOffset * 2);
-        return Math.max(1, Math.floor(visibleWidth / cardWidth));
+        const cw = getCardWidth();
+        return Math.max(1, Math.floor(visibleWidth / cw));
     };
     
     let cardsPerView = getCardsPerView();
     let totalPages = Math.ceil(totalCards / cardsPerView);
+
+    function refreshCardWidth() {
+        cardWidth = getCardWidth();
+        cardsPerView = getCardsPerView();
+        totalPages = Math.ceil(totalCards / cardsPerView);
+    }
     
     // Create indicators - 为每个项目创建一个指示器
     if (indicators) {
@@ -273,7 +280,7 @@ function initProjectsGallery() {
             const scrollPosition = gallery.scrollLeft;
             const currentPaddingOffset = getPaddingOffset();
             const adjustedScroll = Math.max(0, scrollPosition - currentPaddingOffset);
-            const centerCardIndex = Math.round(adjustedScroll / cardWidth);
+            const centerCardIndex = Math.round(adjustedScroll / getCardWidth());
             const activeCardIndex = Math.max(0, Math.min(centerCardIndex, totalCards - 1));
             
             indicatorElements.forEach((ind, i) => {
@@ -288,8 +295,8 @@ function initProjectsGallery() {
         
         currentIndex = targetIndex;
         const currentPaddingOffset = getPaddingOffset();
-        // 计算滚动位置：初始 padding + 页面偏移
-        const scrollPosition = currentPaddingOffset + (currentIndex * cardsPerView * cardWidth);
+        const cw = getCardWidth();
+        const scrollPosition = currentPaddingOffset + (currentIndex * cardsPerView * cw);
         
         isScrolling = true;
         gallery.scrollTo({
@@ -337,7 +344,7 @@ function initProjectsGallery() {
             const scrollPosition = gallery.scrollLeft;
             const currentPaddingOffset = getPaddingOffset();
             const adjustedScroll = Math.max(0, scrollPosition - currentPaddingOffset);
-            const centerCardIndex = Math.round(adjustedScroll / cardWidth);
+            const centerCardIndex = Math.round(adjustedScroll / getCardWidth());
             const newPageIndex = Math.floor(centerCardIndex / cardsPerView);
             
             if (newPageIndex !== currentIndex && newPageIndex >= 0 && newPageIndex < totalPages) {
@@ -348,27 +355,20 @@ function initProjectsGallery() {
             updateIndicators();
         }, 100);
     });
-    
-    // Handle window resize
+
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            const newCardsPerView = Math.floor(gallery.offsetWidth / cardWidth);
-            const newTotalPages = Math.ceil(cards.length / newCardsPerView);
-            if (newTotalPages !== totalPages) {
-                // Reinitialize if needed
-                location.reload();
-            }
+            refreshCardWidth();
+            updateButtons();
+            updateIndicators();
         }, 250);
     });
-    
-    // Initialize - scroll to show first card half outside
-    // Wait for layout to be ready
+
     setTimeout(() => {
-        const initialPaddingOffset = getPaddingOffset();
-        const initialScroll = initialPaddingOffset > 0 ? initialPaddingOffset : 0;
-        gallery.scrollLeft = initialScroll;
+        refreshCardWidth();
+        gallery.scrollLeft = getPaddingOffset();
         updateIndicators();
     }, 100);
     

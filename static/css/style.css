@@ -5,6 +5,11 @@
     box-sizing: border-box;
 }
 
+/* 默认以 90% 视觉比例打开，固定「五张卡完整可见」的布局 */
+html {
+    zoom: 0.9;
+}
+
 :root {
     /* Zoom-style Blue + Dark Theme */
     --primary-color: #ffffff;
@@ -328,11 +333,12 @@ body {
     overflow-x: auto;
     overflow-y: visible;
     scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
-    padding: 30px 0; /* 增加上下 padding 给阴影留空间 */
-    padding-left: calc(50vw - 160px); /* 让第一个卡片一半在外面 (卡片宽度320px的一半) */
-    padding-right: calc(50vw - 160px); /* 让最后一个卡片一半在外面 */
+    padding: 30px 0;
+    padding-left: calc(50vw - 160px);
+    padding-right: calc(50vw - 160px);
     width: 100vw;
     box-sizing: border-box;
 }
@@ -351,11 +357,12 @@ body {
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    min-width: 320px;
-    max-width: 320px;
+    min-width: min(320px, calc(100vw - 48px));
+    max-width: min(320px, calc(100vw - 48px));
     flex-shrink: 0;
     border: 1px solid var(--border-color);
-    margin: 10px 0; /* 给阴影留出垂直空间 */
+    margin: 10px 0;
+    scroll-snap-align: start;
 }
 
 .project-card:hover {
@@ -887,7 +894,25 @@ body {
     color: var(--zoom-blue);
 }
 
-/* Responsive Design */
+/* Responsive Design - Projects: 一屏一张卡，避免裁切 */
+@media (max-width: 1024px) {
+    .projects-gallery-section {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .projects-gallery {
+        width: 100%;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .project-card {
+        min-width: calc(100vw - 32px);
+        max-width: calc(100vw - 32px);
+    }
+}
+
 @media (max-width: 768px) {
     :root {
         --header-height: 120px; /* 移动端 header 更高 */
@@ -902,11 +927,6 @@ body {
     .nav {
         width: 100%;
         justify-content: flex-start;
-    }
-
-    .projects-gallery {
-        padding-left: calc(50vw - 140px);
-        padding-right: calc(50vw - 140px);
     }
 
     .gallery-controls {
@@ -937,11 +957,6 @@ body {
     
     .gallery-indicator.active {
         width: 20px;
-    }
-
-    .project-card {
-        min-width: 280px;
-        max-width: 280px;
     }
 
     .about-content {
@@ -1002,15 +1017,8 @@ body {
         font-size: 1.75rem;
     }
 
-    .project-card {
-        min-width: 260px;
-        max-width: 260px;
-    }
-
     .projects-gallery {
         gap: 16px;
-        padding-left: calc(50vw - 130px);
-        padding-right: calc(50vw - 130px);
     }
 
     .gform-embed {
