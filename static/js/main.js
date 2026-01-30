@@ -175,18 +175,47 @@ function addSmoothScrolling() {
 }
 
 function initProjectCards() {
-    const projectCards = document.querySelectorAll('.project-card');
-    
-    projectCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Add click animation
-            this.style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 150);
-            
-            // Future: Add modal or navigation to project detail page
-            console.log('Project card clicked:', this);
+    const flipWrappers = document.querySelectorAll('.project-card-flip');
+
+    flipWrappers.forEach(wrapper => {
+        const demoUrl = (wrapper.getAttribute('data-demo-url') || '').trim();
+        const screenshotUrl = (wrapper.getAttribute('data-screenshot') || '').trim();
+        const screenshotEl = wrapper.querySelector('.project-screenshot');
+        const demoBtn = wrapper.querySelector('.project-demo-btn');
+
+        if (screenshotEl) {
+            if (screenshotUrl) {
+                screenshotEl.style.backgroundImage = `url(${screenshotUrl})`;
+                screenshotEl.classList.remove('no-image');
+            } else {
+                screenshotEl.classList.add('no-image');
+                screenshotEl.textContent = '暂无截图';
+            }
+        }
+        if (demoBtn) {
+            if (demoUrl) {
+                demoBtn.href = demoUrl;
+                demoBtn.classList.remove('no-url');
+                try {
+                    const host = new URL(demoUrl).hostname.replace(/^www\./, '');
+                    demoBtn.textContent = '访问 ' + host;
+                } catch (_) {
+                    demoBtn.textContent = '查看展示';
+                }
+            } else {
+                demoBtn.href = '#';
+                demoBtn.classList.add('no-url');
+                demoBtn.textContent = '暂无展示链接';
+            }
+            demoBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!demoUrl) e.preventDefault();
+            });
+        }
+
+        wrapper.addEventListener('click', function(e) {
+            if (e.target.closest('.project-demo-btn')) return;
+            this.classList.toggle('flipped');
         });
     });
 }
@@ -230,7 +259,7 @@ function initProjectsGallery() {
     
     if (!gallery || !prevBtn || !nextBtn) return;
     
-    const cards = gallery.querySelectorAll('.project-card');
+    const cards = gallery.querySelectorAll('.project-card-flip');
     const gap = parseInt(getComputedStyle(gallery).gap, 10) || 24;
     const getCardWidth = () => (cards[0] ? cards[0].offsetWidth + gap : 320 + gap);
     let cardWidth = getCardWidth();
@@ -381,6 +410,7 @@ function initProjectsGallery() {
     let scrollLeft;
     
     gallery.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.project-card-flip')) return;
         isDown = true;
         gallery.style.cursor = 'grabbing';
         startX = e.pageX - gallery.offsetLeft;
