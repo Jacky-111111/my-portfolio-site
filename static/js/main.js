@@ -4,23 +4,12 @@ const ROUTE_ORDER = { '/': 0, '/about': 1, '/contact': 2 };
 const ROUTE_PATHS = ['/', '/about', '/contact'];
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Highlight active navigation link
-    highlightActiveNav();
-    
-    // Page transition: intercept nav, slide left/right
-    initPageTransitions();
-    
-    // Add smooth scrolling
-    addSmoothScrolling();
-    
-    // Add project card interactions
-    initProjectCards();
-    
-    // Initialize gallery
-    initProjectsGallery();
-    
-    // Contact page: copy email and toast
-    initContactPage();
+    try { highlightActiveNav(); } catch (e) { console.warn('highlightActiveNav', e); }
+    try { initPageTransitions(); } catch (e) { console.warn('initPageTransitions', e); }
+    try { addSmoothScrolling(); } catch (e) { console.warn('addSmoothScrolling', e); }
+    try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
+    try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }
+    try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
 });
 
 function initPageTransitions() {
@@ -138,11 +127,11 @@ function loadPageContent(path, addHistory) {
 }
 
 function reinitPageModules() {
-    addSmoothScrolling();
-    initProjectCards();
-    initProjectsGallery();
-    initContactPage();
-    if ('IntersectionObserver' in window) initScrollAnimations();
+    try { addSmoothScrolling(); } catch (e) { console.warn('addSmoothScrolling', e); }
+    try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
+    try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }
+    try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
+    if ('IntersectionObserver' in window) try { initScrollAnimations(); } catch (e) { console.warn('initScrollAnimations', e); }
 }
 
 function highlightActiveNav() {
@@ -213,9 +202,31 @@ function initProjectCards() {
             });
         }
 
+        function doFlip(el) {
+            if (!el || !el.classList) return;
+            el.classList.toggle('flipped');
+        }
+        function isDemoBtn(target) {
+            return target && target.closest && target.closest('.project-demo-btn');
+        }
         wrapper.addEventListener('click', function(e) {
-            if (e.target.closest('.project-demo-btn')) return;
-            this.classList.toggle('flipped');
+            if (isDemoBtn(e.target)) return;
+            if (e.pointerType === 'touch') return;
+            doFlip(this);
+        });
+        var pointerDown = { x: 0, y: 0 };
+        wrapper.addEventListener('pointerdown', function(e) {
+            pointerDown.x = e.clientX;
+            pointerDown.y = e.clientY;
+        }, { passive: true });
+        wrapper.addEventListener('pointerup', function(e) {
+            if (e.pointerType !== 'touch') return;
+            if (isDemoBtn(e.target)) return;
+            var dx = e.clientX - pointerDown.x;
+            var dy = e.clientY - pointerDown.y;
+            if (dx * dx + dy * dy >= 25) return;
+            doFlip(this);
+            e.preventDefault();
         });
     });
 }

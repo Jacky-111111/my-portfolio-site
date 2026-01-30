@@ -354,7 +354,9 @@ body {
     margin: 10px 0;
     scroll-snap-align: start;
     perspective: 1000px;
+    -webkit-perspective: 1000px;
     cursor: pointer;
+    touch-action: manipulation;
 }
 
 .project-card-inner {
@@ -363,11 +365,14 @@ body {
     height: 100%;
     min-height: 520px;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
 }
 
 .project-card-flip.flipped .project-card-inner {
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
 }
 
 .project-card-flip .project-card,
@@ -390,6 +395,7 @@ body {
 .project-card-flip .project-card-back {
     z-index: 1;
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
