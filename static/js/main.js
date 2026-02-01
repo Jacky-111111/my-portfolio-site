@@ -198,7 +198,12 @@ function initProjectCards() {
             }
             demoBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                if (!demoUrl) e.preventDefault();
+                if (demoUrl) {
+                    e.preventDefault();
+                    window.open(demoUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                    e.preventDefault();
+                }
             });
         }
 
