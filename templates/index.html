@@ -5,6 +5,13 @@
 {% block content %}
 <section class="projects-gallery-section">
     <div class="projects-gallery-wrapper">
+            <div class="projects-filter-bar" id="projectsFilterBar">
+                <div class="projects-search-wrap">
+                    <input type="text" class="projects-search-input" id="projectsSearchInput" placeholder="Search projects..." aria-label="Search projects" autocomplete="off" />
+                    <button type="button" class="projects-search-clear" id="projectsSearchClear" aria-label="Clear search" title="Clear search">×</button>
+                </div>
+                <div class="projects-label-chips" id="projectsLabelChips" aria-label="Filter by label"></div>
+            </div>
             <div class="projects-gallery" id="projectsGallery">
             <!-- Project Card 1: CMU QPA Plus -->
             <div class="project-card-flip" data-demo-url="https://cmuqpa.com/" data-screenshot="/static/images/cmu-qpa-plus.png">
@@ -212,7 +219,7 @@
                         </div>
                         <div class="project-info">
                             <h3 class="project-title">1-Hour Crossy Road Challenge</h3>
-                            <p class="project-tech">Python, Panda3D</p>
+                            <p class="project-tech">Python, Panda3D, 15-113</p>
                             <p class="project-description">A 3D Crossy Road clone in Python using Panda3D, with a SpongeBob SquarePants theme. Procedural lanes (grass, road, river, train), grid movement, hazards (boats, bus, water/log rules), scoring, and UI (start, HUD, game over). Built in a 1-hour challenge.</p>
                             <p class="project-date">Jan 2026</p>
                         </div>

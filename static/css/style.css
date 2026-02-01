@@ -326,6 +326,122 @@ body {
     align-items: center;
 }
 
+/* Projects filter bar: search + label chips (exclude by label) */
+.projects-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: var(--max-width);
+    padding: 0 var(--spacing) 16px;
+    margin: 0 auto;
+    align-self: flex-start;
+}
+
+.projects-search-wrap {
+    position: relative;
+    flex: 0 1 220px;
+    min-width: 160px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.projects-search-input {
+    width: 100%;
+    padding: 10px 32px 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background-color: #fff;
+    color: #1a1f3a;
+    transition: border-color 0.2s ease;
+}
+
+.projects-search-input::placeholder {
+    color: #718096;
+}
+
+.projects-search-input:focus {
+    outline: none;
+    border-color: var(--zoom-blue);
+}
+
+.projects-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #718096;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.projects-search-clear:hover {
+    color: #1a1f3a;
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.projects-search-clear.visible {
+    display: inline-flex;
+}
+
+.projects-label-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.project-label-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.project-label-chip:hover {
+    background-color: #fff;
+    border-color: var(--zoom-blue);
+    color: var(--zoom-blue);
+}
+
+.project-label-chip.selected {
+    background-color: rgba(45, 140, 255, 0.2);
+    border-color: var(--zoom-blue);
+    color: var(--zoom-blue);
+}
+
+.project-label-chip.selected:hover {
+    background-color: rgba(45, 140, 255, 0.3);
+}
+
+.project-label-chip:not(.selected) {
+    opacity: 0.85;
+}
+
+.project-card-flip.project-card-hidden {
+    display: none;
+}
+
 .projects-gallery {
     display: flex;
     gap: 24px;

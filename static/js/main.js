@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try { addSmoothScrolling(); } catch (e) { console.warn('addSmoothScrolling', e); }
     try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
     try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }
+    try { initProjectFilters(); } catch (e) { console.warn('initProjectFilters', e); }
     try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
 });
 
@@ -130,6 +131,7 @@ function reinitPageModules() {
     try { addSmoothScrolling(); } catch (e) { console.warn('addSmoothScrolling', e); }
     try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
     try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }
+    try { initProjectFilters(); } catch (e) { console.warn('initProjectFilters', e); }
     try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
     if ('IntersectionObserver' in window) try { initScrollAnimations(); } catch (e) { console.warn('initScrollAnimations', e); }
 }
@@ -275,12 +277,15 @@ function initProjectsGallery() {
     
     if (!gallery || !prevBtn || !nextBtn) return;
     
-    const cards = gallery.querySelectorAll('.project-card-flip');
     const gap = parseInt(getComputedStyle(gallery).gap, 10) || 24;
-    const getCardWidth = () => (cards[0] ? cards[0].offsetWidth + gap : 320 + gap);
+    const getVisibleCards = () => gallery.querySelectorAll('.project-card-flip:not(.project-card-hidden)');
+    const getCardWidth = () => {
+        const vis = getVisibleCards();
+        return (vis.length && vis[0] ? vis[0].offsetWidth + gap : 320 + gap);
+    };
     let cardWidth = getCardWidth();
     let currentIndex = 0;
-    const totalCards = cards.length;
+    let totalCards = getVisibleCards().length;
     let isScrolling = false;
 
     const getPaddingOffset = () => parseFloat(getComputedStyle(gallery).paddingLeft) || 0;
@@ -293,17 +298,39 @@ function initProjectsGallery() {
     };
     
     let cardsPerView = getCardsPerView();
-    let totalPages = Math.ceil(totalCards / cardsPerView);
+    let totalPages = Math.max(1, Math.ceil(totalCards / cardsPerView));
 
     function refreshCardWidth() {
+        totalCards = getVisibleCards().length;
         cardWidth = getCardWidth();
         cardsPerView = getCardsPerView();
-        totalPages = Math.ceil(totalCards / cardsPerView);
+        totalPages = Math.max(1, Math.ceil(totalCards / cardsPerView));
+    }
+    
+    function rebuildIndicators() {
+        totalCards = getVisibleCards().length;
+        cardsPerView = getCardsPerView();
+        totalPages = Math.max(1, Math.ceil(totalCards / cardsPerView));
+        if (indicators) {
+            indicators.innerHTML = '';
+            for (let i = 0; i < totalCards; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'gallery-indicator';
+                if (i === 0) indicator.classList.add('active');
+                indicator.addEventListener('click', () => scrollToCard(i));
+                indicators.appendChild(indicator);
+            }
+        }
+        currentIndex = 0;
+        const vis = getVisibleCards();
+        if (vis.length) gallery.scrollLeft = Math.max(0, vis[0].offsetLeft - getPaddingOffset());
+        updateButtons();
+        updateIndicators();
     }
     
     // Create indicators - 为每个项目创建一个指示器
     if (indicators) {
-        indicators.innerHTML = ''; // 清空现有指示器
+        indicators.innerHTML = '';
         for (let i = 0; i < totalCards; i++) {
             const indicator = document.createElement('div');
             indicator.className = 'gallery-indicator';
@@ -321,13 +348,14 @@ function initProjectsGallery() {
     function updateIndicators() {
         if (indicators) {
             const indicatorElements = indicators.querySelectorAll('.gallery-indicator');
-            // 计算当前视图中最居中的卡片索引
-            const scrollPosition = gallery.scrollLeft;
-            const currentPaddingOffset = getPaddingOffset();
-            const adjustedScroll = Math.max(0, scrollPosition - currentPaddingOffset);
-            const centerCardIndex = Math.round(adjustedScroll / getCardWidth());
-            const activeCardIndex = Math.max(0, Math.min(centerCardIndex, totalCards - 1));
-            
+            const vis = getVisibleCards();
+            const scrollPos = gallery.scrollLeft + getPaddingOffset();
+            let activeCardIndex = 0;
+            for (let i = 0; i < vis.length; i++) {
+                if (vis[i].offsetLeft + vis[i].offsetWidth / 2 <= scrollPos + gallery.offsetWidth / 2) activeCardIndex = i;
+            }
+            activeCardIndex = Math.min(activeCardIndex, vis.length - 1);
+            currentIndex = activeCardIndex;
             indicatorElements.forEach((ind, i) => {
                 ind.classList.toggle('active', i === activeCardIndex);
             });
@@ -358,8 +386,12 @@ function initProjectsGallery() {
     }
     
     function scrollToCard(cardIndex) {
-        const targetPage = Math.floor(cardIndex / cardsPerView);
-        scrollToPage(targetPage);
+        const vis = getVisibleCards();
+        if (vis[cardIndex]) {
+            isScrolling = true;
+            gallery.scrollTo({ left: Math.max(0, vis[cardIndex].offsetLeft - getPaddingOffset()), behavior: 'smooth' });
+            setTimeout(() => { isScrolling = false; updateIndicators(); }, 600);
+        }
     }
     
     // 按钮事件监听
@@ -382,22 +414,11 @@ function initProjectsGallery() {
     // Update on scroll
     let scrollTimeout;
     gallery.addEventListener('scroll', () => {
-        if (isScrolling) return; // 如果正在程序化滚动，不更新页面索引
-        
+        if (isScrolling) return;
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
-            const scrollPosition = gallery.scrollLeft;
-            const currentPaddingOffset = getPaddingOffset();
-            const adjustedScroll = Math.max(0, scrollPosition - currentPaddingOffset);
-            const centerCardIndex = Math.round(adjustedScroll / getCardWidth());
-            const newPageIndex = Math.floor(centerCardIndex / cardsPerView);
-            
-            if (newPageIndex !== currentIndex && newPageIndex >= 0 && newPageIndex < totalPages) {
-                currentIndex = newPageIndex;
-                updateButtons();
-            }
-            // 总是更新指示器以反映当前可见的卡片
             updateIndicators();
+            updateButtons();
         }, 100);
     });
 
@@ -452,6 +473,118 @@ function initProjectsGallery() {
     });
     
     gallery.style.cursor = 'grab';
+    
+    window.addEventListener('projectFilterChange', function() {
+        rebuildIndicators();
+    });
+}
+
+// Projects filter: search + label filter (All = show all; dim All and select labels = show only those)
+function initProjectFilters() {
+    const gallery = document.getElementById('projectsGallery');
+    const searchInput = document.getElementById('projectsSearchInput');
+    const chipsContainer = document.getElementById('projectsLabelChips');
+    if (!gallery || !chipsContainer) return;
+    
+    const cards = gallery.querySelectorAll('.project-card-flip');
+    function getCardTags(card) {
+        const techEl = card.querySelector('.project-tech');
+        if (!techEl) return [];
+        return (techEl.textContent || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+    }
+    const allTags = {};
+    cards.forEach(function(card) {
+        getCardTags(card).forEach(function(tag) {
+            allTags[tag] = true;
+        });
+    });
+    const tagList = Object.keys(allTags).sort();
+    
+    var allChip;
+    var allSelected = true;
+    
+    function addChip(label, isAll) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'project-label-chip' + (isAll ? ' project-label-chip-all' : '');
+        chip.textContent = label;
+        chip.setAttribute('data-tag', label);
+        chip.addEventListener('click', function() {
+            if (isAll) {
+                allSelected = !allSelected;
+                chip.classList.toggle('selected', allSelected);
+                if (allSelected) {
+                    chipsContainer.querySelectorAll('.project-label-chip:not(.project-label-chip-all)').forEach(function(c) { c.classList.remove('selected'); });
+                }
+            } else {
+                if (allSelected) {
+                    allSelected = false;
+                    if (allChip) allChip.classList.remove('selected');
+                    chipsContainer.querySelectorAll('.project-label-chip:not(.project-label-chip-all)').forEach(function(c) { c.classList.remove('selected'); });
+                    chip.classList.add('selected');
+                } else {
+                    chip.classList.toggle('selected');
+                }
+            }
+            applyFilter();
+        });
+        chipsContainer.appendChild(chip);
+        if (isAll) allChip = chip;
+    }
+    
+    addChip('All', true);
+    allChip.classList.add('selected');
+    tagList.forEach(function(tag) {
+        addChip(tag, false);
+    });
+    
+    var clearBtn = document.getElementById('projectsSearchClear');
+    function updateClearVisibility() {
+        if (clearBtn) clearBtn.classList.toggle('visible', searchInput && searchInput.value.trim().length > 0);
+    }
+    if (searchInput) {
+        var searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilter, 200);
+            updateClearVisibility();
+        });
+    }
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+                updateClearVisibility();
+                applyFilter();
+            }
+        });
+    }
+    
+    function applyFilter() {
+        var selectedTags = {};
+        if (!allSelected) {
+            chipsContainer.querySelectorAll('.project-label-chip.selected:not(.project-label-chip-all)').forEach(function(chip) {
+                selectedTags[chip.getAttribute('data-tag')] = true;
+            });
+        }
+        var query = (searchInput && searchInput.value) ? searchInput.value.trim().toLowerCase() : '';
+        cards.forEach(function(card) {
+            var tags = getCardTags(card);
+            var matchesLabel = allSelected || tags.some(function(t) { return selectedTags[t]; });
+            var title = (card.querySelector('.project-title') && card.querySelector('.project-title').textContent) || '';
+            var desc = (card.querySelector('.project-description') && card.querySelector('.project-description').textContent) || '';
+            var tech = (card.querySelector('.project-tech') && card.querySelector('.project-tech').textContent) || '';
+            var text = (title + ' ' + desc + ' ' + tech).toLowerCase();
+            var matchesSearch = !query || text.indexOf(query) !== -1;
+            if (matchesSearch && matchesLabel) {
+                card.classList.remove('project-card-hidden');
+            } else {
+                card.classList.add('project-card-hidden');
+            }
+        });
+        window.dispatchEvent(new CustomEvent('projectFilterChange'));
+    }
 }
 
 // Contact page: copy-to-clipboard and toast
