@@ -189,7 +189,7 @@ function initProjectCards() {
                     const host = new URL(demoUrl).hostname.replace(/^www\./, '');
                     demoBtn.textContent = host;  // 只显示域名，不加「访问」
                 } catch (_) {
-                    demoBtn.textContent = '查看展示';
+                    demoBtn.textContent = 'View more';
                 }
             } else {
                 demoBtn.href = '#';
