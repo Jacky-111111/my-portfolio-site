@@ -1029,6 +1029,33 @@ body {
     visibility: visible;
 }
 
+/* Projects hint toast: filter + flip tip, bottom of page, 5s then fade */
+.projects-hint-toast {
+    position: fixed;
+    bottom: calc(var(--footer-height) + 20px);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--zoom-blue-dark) 0%, var(--zoom-blue) 100%);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(45, 140, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease;
+    z-index: 180;
+    pointer-events: none;
+}
+
+.projects-hint-toast.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Leave a message card – Google Form embed */
 .contact-message-card {
     margin-top: 40px;

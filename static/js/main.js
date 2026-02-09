@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
     try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }
     try { initProjectFilters(); } catch (e) { console.warn('initProjectFilters', e); }
+    try { initProjectsHintToast(); } catch (e) { console.warn('initProjectsHintToast', e); }
     try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
 });
 
@@ -132,8 +133,18 @@ function reinitPageModules() {
     try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
     try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }
     try { initProjectFilters(); } catch (e) { console.warn('initProjectFilters', e); }
+    try { initProjectsHintToast(); } catch (e) { console.warn('initProjectsHintToast', e); }
     try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
     if ('IntersectionObserver' in window) try { initScrollAnimations(); } catch (e) { console.warn('initScrollAnimations', e); }
+}
+
+function initProjectsHintToast() {
+    var toast = document.getElementById('projectsHintToast');
+    if (!toast) return;
+    toast.classList.add('visible');
+    setTimeout(function() {
+        toast.classList.remove('visible');
+    }, 5000);
 }
 
 function highlightActiveNav() {
